@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Parabéns!</title>
+    <style>
+        body { background: #0a2b1f; color: white; text-align: center; padding: 50px; font-family: Arial; }
+        .card { background: white; color: #333; max-width: 500px; margin: auto; padding: 30px; border-radius: 20px; }
+        a { color: #2c6e49; text-decoration: none; display: block; margin: 10px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>🎉 Você está pronto!</h1>
+    <p>Todo o conteúdo foi enviado para o seu WhatsApp/email.</p>
+    <p><strong>Você adquiriu:</strong></p>
+    <ul style="text-align: left;">
+        <li>✅ Método do Sal</li>
+        <li id="upsell1Item" style="display:none;">✅ Extensão Natural</li>
+        <li id="upsell2Item" style="display:none;">✅ Guia da Stamina</li>
+        <li id="upsell3Item" style="display:none;">✅ Acompanhamento VIP</li>
+    </ul>
+    <a href="https://wa.me/258840000000?text=Recebi%20meu%20acesso" target="_blank">📲 Falar com suporte no WhatsApp</a>
+</div>
+<script>
+    if (sessionStorage.getItem('upsell1_purchased')) document.getElementById('upsell1Item').style.display = 'block';
+    if (sessionStorage.getItem('upsell2_purchased')) document.getElementById('upsell2Item').style.display = 'block';
+    if (sessionStorage.getItem('upsell3_purchased')) document.getElementById('upsell3Item').style.display = 'block';
+    // Limpa sessão (opcional)
+    // sessionStorage.clear();
+</script>
+</body>
+</html>

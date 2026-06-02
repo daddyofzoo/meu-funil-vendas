@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento Confirmado - Método do Sal</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0a2b1f; color: white; text-align: center; padding: 50px; }
+        .card { background: white; color: #333; max-width: 500px; margin: auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        button { background: #c97e2a; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; border-radius: 40px; cursor: pointer; margin-top: 20px; }
+        a { color: #2c6e49; text-decoration: none; display: inline-block; margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>✅ Pagamento aprovado!</h1>
+    <p>Seu acesso ao <strong>Método do Sal</strong> foi enviado para o seu WhatsApp/email.</p>
+    <p>Agora você tem a chance de <strong>duplicar seus resultados</strong> com a Extensão Natural.</p>
+    <button id="goToUpsell1">🔥 Quero a Extensão Natural (997 MZN)</button>
+    <br>
+    <a href="upsell2.html">Não, quero apenas o método básico (pular)</a>
+</div>
+
+<script>
+    // Recupera dados do cliente do sessionStorage (que foram salvos no index.html após pagamento)
+    // Se não existirem, tenta obter da URL ou redireciona para o início
+    const userData = {
+        phone: sessionStorage.getItem('userPhone') || localStorage.getItem('userPhone'),
+        email: sessionStorage.getItem('userEmail') || localStorage.getItem('userEmail'),
+        fullName: sessionStorage.getItem('userFullName') || localStorage.getItem('userFullName'),
+        method: sessionStorage.getItem('paymentMethod') || localStorage.getItem('paymentMethod'),
+        client_id: 'a1edafbb-3e36-4fea-bccc-720cf385f7ef'
+    };
+
+    // Se não tiver telefone, não conseguimos prosseguir - redireciona para o checkout
+    if (!userData.phone) {
+        window.location.href = 'index.html';
+    }
+
+    // Guarda novamente para garantir que os upsells terão acesso
+    sessionStorage.setItem('userPhone', userData.phone);
+    sessionStorage.setItem('userEmail', userData.email);
+    sessionStorage.setItem('userFullName', userData.fullName);
+    sessionStorage.setItem('paymentMethod', userData.method);
+
+    document.getElementById('goToUpsell1').onclick = () => {
+        window.location.href = 'upsell1.html';
+    };
+</script>
+</body>
+</html>
