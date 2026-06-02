@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Método do Sal</title>
+    <style>
+        /* (mantenha o mesmo CSS que eu te dei anteriormente) */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #0a2b1f; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .checkout-card { max-width: 500px; width: 100%; background: white; border-radius: 32px; padding: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        h1 { font-size: 1.8rem; color: #1e3a2f; margin-bottom: 8px; }
+        .price { font-size: 2.2rem; font-weight: bold; color: #c97e2a; margin: 16px 0; }
+        .order-bump { background: #fef7e0; border-radius: 20px; padding: 16px; margin: 20px 0; border: 1px solid #ffd966; display: flex; align-items: center; gap: 12px; }
+        .order-bump input { width: 24px; height: 24px; accent-color: #c97e2a; }
+        label { font-weight: bold; }
+        small { color: #2c6e49; }
+        input, select { width: 100%; padding: 14px; margin: 8px 0 16px; border: 1px solid #ccc; border-radius: 40px; font-size: 1rem; }
+        button { background: #2c6e49; color: white; border: none; width: 100%; padding: 16px; border-radius: 40px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #1e4a33; }
+        .loader { display: none; text-align: center; margin-top: 20px; }
+        .error { color: red; margin-top: 12px; text-align: center; }
+        hr { margin: 20px 0; }
+    </style>
+</head>
+<body>
+<div class="checkout-card">
+    <h1>🔐 Finalizar pedido</h1>
+    <p>Método do Sal + Kit Aplicador (opcional)</p>
+    <div class="price" id="totalPrice">297 MZN</div>
+
+    <div class="order-bump">
+        <input type="checkbox" id="orderBump">
+        <div>
+            <label for="orderBump">✅ Adicionar Kit Aplicador <strong>+197 MZN</strong></label>
+            <small>Garante a dose certa e resultados 40% mais rápidos</small>
+        </div>
+    </div>
+
+    <form id="paymentForm">
+        <input type="text" id="fullName" placeholder="Nome completo" required>
+        <input type="email" id="email" placeholder="Seu e-mail" required>
+        <input type="tel" id="phone" placeholder="Número M-Pesa/eMola (ex: 848512345)" required>
+        <select id="method" required>
+            <option value="mpesa">M-Pesa</option>
+            <option value="emola">eMola</option>
+        </select>
+        <button type="submit">Pagar agora</button>
+    </form>
+    <div class="loader" id="loader">⏳ Processando, aguarde...</div>
+    <div class="error" id="errorMsg"></div>
+    <hr>
+    <small>🔒 Ambiente 100% seguro. Pagamento confirmado na hora.</small>
+</div>
+
+<script>
+    const basePrice = 297;
+    const bumpPrice = 197;
+    const totalSpan = document.getElementById('totalPrice');
+    const bumpCheckbox = document.getElementById('orderBump');
+
+    function updateTotal() {
+        let total = basePrice;
+        if (bumpCheckbox.checked) total += bumpPrice;
+        totalSpan.innerText = total + ' MZN';
+    }
+    bumpCheckbox.addEventListener('change', updateTotal);
+    updateTotal();
+
+    document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const loader = document.getElementById('loader');
+        const errorDiv = document.getElementById('errorMsg');
+        const btn = document.querySelector('button');
+        btn.disabled = true;
+        loader.style.display = 'block';
+        errorDiv.innerText = '';
+
+        const phone = document.getElementById('phone').value.trim();
+        const method = document.getElementById('method').value;
+        let amount = basePrice;
+        if (bumpCheckbox.checked) amount += bumpPrice;
+        const reference = 'METODO_SAL_' + Date.now();
+
+        // wallet ID dinâmico
+        const walletId = method === 'mpesa' ? '999863' : '999864';
+        // client_id fixo (pode ficar no front-end, não é segredo)
+        const clientId = 'a1edafbb-3e36-4fea-bccc-720cf385f7ef';
+
+        try {
+            // A MUDANÇA CRUCIAL: agora o endpoint é /api/payment
+            const response = await fetch('/api/payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    client_id: clientId,
+                    amount: amount.toString(),
+                    phone: phone,
+                    reference: reference,
+                    wallet_id: walletId,
+                    method: method
+                })
+            });
+            const data = await response.json();
+            if (response.ok && data.success) {
+                // Redireciona para página de obrigado
+                sessionStorage.setItem('paymentConfirmed', 'true');
+                sessionStorage.setItem('userEmail', document.getElementById('email').value);
+                sessionStorage.setItem('userPhone', phone);
+                window.location.href = 'obrigado.html';
+            } else {
+                errorDiv.innerText = data.message || 'Erro no pagamento. Tente novamente.';
+                btn.disabled = false;
+                loader.style.display = 'none';
+            }
+        } catch (err) {
+            errorDiv.innerText = 'Erro de conexão. Verifique sua internet.';
+            btn.disabled = false;
+            loader.style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html>
